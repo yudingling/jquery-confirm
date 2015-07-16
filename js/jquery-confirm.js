@@ -204,15 +204,26 @@ var jconfirm, Jconfirm;
             if (/cancel/.test(opt[0]) && this.type === 'alert') {
                 return false;
             } else if (/confirm|cancel/.test(opt[0])) {
-                this.$cd = $('<span class="countdown">').appendTo(this['$' + opt[0] + 'Button']);
+                if((/confirm/.test(opt[0]) && this.confirmButton) 
+            		|| (/cancel/.test(opt[0]) && this.cancelButton)){
+            		this.$cd = $('<span class="countdown">').appendTo(this['$' + opt[0] + 'Button']);
+            	}
                 var that = this;
-                that.$cd.parent().click();
+                if(that.$cd)
+                    that.$cd.parent().click();
                 var time = opt[1] / 1000;
                 this.interval = setInterval(function () {
-                    that.$cd.html(' [' + (time -= 1) + ']');
+                    time -= 1;
+                    if(that.$cd)
+                        that.$cd.html(' [' + time + ']');
                     if (time === 0) {
-                        that.$cd.parent().trigger('click');
                         clearInterval(that.interval);
+                        if(that.$cd){
+                        	that.$cd.parent().trigger('click');
+                        }else{
+                        	that.cancel();
+                            that.close();
+                        }
                     }
                 }, 1000);
             } else {
